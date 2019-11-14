@@ -7,16 +7,15 @@ import (
 )
 
 const (
-	VALIDATOR_VALUE_SIGN  = "="
-	VALIDATOR_SPLIT_SIGN  = "|"
-	VALIDATOR_PLACEHOLDER = "_"
-	// VALIDATOR_RANGE_SPLIT_SIGN = ","
+	VALIDATOR_ASSIGNMENT_SIGN   = "="
+	VALIDATOR_PARAMS_SPLIT_SIGN = "|"
+	VALIDATOR_PLACEHOLDER_SIGN  = "_"
+	VALIDATOR_SPLIT_SIGN        = "||"
 )
 
 func NewValidator() *Validator {
 	return &Validator{
 		tagName:       "validator",
-		splitSign:     "||",
 		lazy:          false,
 		validatorsMap: validatorsMap,
 	}
@@ -24,7 +23,6 @@ func NewValidator() *Validator {
 
 type Validator struct {
 	tagName       string
-	splitSign     string
 	lazy          bool
 	validatorsMap map[string]IValidator
 }
@@ -34,6 +32,18 @@ func (v *Validator) Validate(a interface{}) (errs []error) {
 	return
 }
 
+func (v *Validator) LazyValidate(a interface{}) error {
+	oldLazy := v.lazy
+	v.lazy = true
+	err := v.validate(a)
+	v.lazy = oldLazy
+
+	if err != nil {
+		return err[0]
+	}
+	return nil
+}
+
 // 添加验证器
 func (v *Validator) AddValidator(key string, validator IValidator) error {
 	if _, ok := v.validatorsMap[key]; ok {
@@ -41,11 +51,6 @@ func (v *Validator) AddValidator(key string, validator IValidator) error {
 	}
 	v.validatorsMap[key] = validator
 	return nil
-}
-
-// 设置惰性验证
-func (v *Validator) SetLazy(lazy bool) {
-	v.lazy = lazy
 }
 
 func (v *Validator) validate(a interface{}) (errs []error) {
@@ -127,7 +132,7 @@ func (v *Validator) handleMulti(value reflect.Value) (errs []error) {
 }
 
 func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, value reflect.Value) (errs []error) {
-	args := strings.Split(tag, va.splitSign)
+	args := strings.Split(tag, VALIDATOR_SPLIT_SIGN)
 
 	isRequired := false
 	for _, v := range args {
@@ -141,10 +146,10 @@ func (va *Validator) hanleVerifyFromTag(tag string, field reflect.StructField, v
 		vKey := v
 		vArgs := make([]string, 0)
 
-		idx := strings.Index(v, VALIDATOR_VALUE_SIGN)
+		idx := strings.Index(v, VALIDATOR_ASSIGNMENT_SIGN)
 		if idx != -1 {
 			vKey = v[0:idx]
-			vArgs = strings.Split(v[idx+1:], VALIDATOR_SPLIT_SIGN)
+			vArgs = strings.Split(v[idx+1:], VALIDATOR_PARAMS_SPLIT_SIGN)
 		}
 		vali, ok := va.validatorsMap[vKey]
 		if !ok {

@@ -12,9 +12,9 @@ type Kind uint
 const (
 	TYPE_INVALID              = "[name] type invalid"
 	PARAMS_INVALID            = "[name] params invalid"
+
 	STRUCT_EMPTY              = "struct %v is empty"
 	VALIDATOR_ALREADY_EXISTED = "[%s] validator already existed"
-	// ERROR_NAME_PLACEHOLDER    = "name"
 
 	Int_Kind Kind = iota
 	Int8_Kind
@@ -31,6 +31,8 @@ const (
 	Array_Kind
 	Slice_Kind
 	Map_Kind
+	Chan_Kind
+	String_Kind
 )
 
 var (
@@ -94,6 +96,14 @@ var (
 
 		},
 	}
+
+	haveLenKindMap = map[reflect.Kind]Kind{
+		reflect.Array:  Array_Kind,
+		reflect.Slice:  Slice_Kind,
+		reflect.Map:    Map_Kind,
+		reflect.Chan:   Chan_Kind,
+		reflect.String: String_Kind,
+	}
 )
 
 func checkIsZoreValue(value reflect.Value) bool {
@@ -122,11 +132,13 @@ func formatError(format, field string) error {
 	return errors.New(e)
 }
 
-func formatMapError(format string, fieldMap map[string]string) error {
+func formatMapError(format string, fieldMaps ...map[string]string) error {
 	var params []string
-	for k, v := range fieldMap {
-		if strings.Index(format, k) >= 0 {
-			params = append(params, k, v)
+	for _, mv := range fieldMaps {
+		for k, v := range mv {
+			if strings.Index(format, k) >= 0 {
+				params = append(params, k, v)
+			}
 		}
 	}
 	replacer := strings.NewReplacer(params...)
@@ -154,4 +166,10 @@ func numberToString(value reflect.Value) string {
 	}
 
 	return ""
+}
+
+// Array, Chan, Map, Slice, or String.
+func checkIsLen(kind reflect.Kind) bool {
+	_, ok := haveLenKindMap[kind]
+	return ok
 }
