@@ -4,7 +4,7 @@
 #### 安装
 
 ```
-go get github.com/kum0/govalidator
+go get github.com/rx-78-2-kum0/govalidator
 ```
 
 #### 使用
