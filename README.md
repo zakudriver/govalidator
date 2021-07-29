@@ -4,7 +4,7 @@
 #### 安装
 
 ```
-go get github.com/rx-78-kum0/govalidator
+go get github.com/dingansichKum0/govalidator
 ```
 
 #### 使用
@@ -13,7 +13,7 @@ go get github.com/rx-78-kum0/govalidator
 package main
 
 import (
-	github.com/kum0/govalidator
+	github.com/dingansichKum0/govalidator
 	fmt
 )
 
