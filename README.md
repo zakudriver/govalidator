@@ -4,7 +4,7 @@
 #### 安装
 
 ```
-go get github.com/dingansichKum0/govalidator
+go get github.com/zakudriver/govalidator
 ```
 
 #### 使用
@@ -13,7 +13,7 @@ go get github.com/dingansichKum0/govalidator
 package main
 
 import (
-	github.com/dingansichKum0/govalidator
+	github.com/zakudriver/govalidator
 	fmt
 )
 
